@@ -1,0 +1,41 @@
+
+#double-scroll {
+    display: inline-block;
+    height: 750px;
+    padding-top: 1.875em;
+    position: relative;
+  }
+
+  #double-scroll > div {
+    height: 1.7em;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  #dataTable1 {
+    display: block;
+    height: 750px;
+    overflow-y: auto;
+  }
+
+  #dataTable1 th {
+    padding: 0 5px;
+    text-align: center;
+  }
+  #dataTable1 th:first-child > div {
+    padding-left: 7px;
+  }
+  #dataTable1 th  > div {
+    line-height: 1.875em;
+    /*
+    margin-left: -6px;
+    padding-left: 5px;
+    */
+    position: absolute;
+    top: 90px;
+  }
+  #dataTable1 td {
+    padding: 5px;
+  }
