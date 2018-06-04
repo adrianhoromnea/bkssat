@@ -123,7 +123,6 @@ class ProgramarePlatiController extends Controller
         $status = $this->getStatusProgramare($programare->status);
 
         //**get detalii liste programari */
-
         $query = "select
             pp.id as id,
             pc.IdCont as idCont,
@@ -172,18 +171,40 @@ class ProgramarePlatiController extends Controller
             pp.programare_platas_id =" . $id;
 
         $detalii = DB::select($query);
+
+        //**get detalii altele */
+        $query1 = "select
+            dpp.id as id,
+            dpp.numarOp as numarOp,
+            dpp.partener as partener,
+            dpp.descriere as descriere,
+            m.idNomMoneda as idMOneda,
+            m.SimbolMoneda as moneda,
+            dpp.valoare as valoare,
+            dpp.verificare as verificare
+        from 
+            dbo.detaliu_programare_plata_manuals dpp inner join dbo.NomMoneda m
+                on dpp.idMoneda = m.idNomMoneda
+        where
+            dpp.programare_platas_id =" . $id . "
+        order by 
+            dpp.numarOp desc";
+
+        $detaliialtele = DB::select($query1);
+
         
         
         //**send user roels for javascript */
         $user = Auth::user();
-        Javascript::put(['user_roles' => $user->roles()->get(),'status_pp'=>$programare->status]);
+        Javascript::put(['user_roles' => $user->roles()->get(),'status_pp'=>$programare->status,'programare_platas_id' => $id]);
 
             return view('financiar.programarePlati.update')->with([
                 'programare'=>$programare,
                 'conturi'=>$conturi,
                 'extrase'=>$extrase,
                 'detalii'=>$detalii,
-                'status'=>$status
+                'status'=>$status,
+                'detaliialtele'=>$detaliialtele
                 ]);
     }
 
@@ -886,3 +907,5 @@ class ProgramarePlatiController extends Controller
 
 
 }
+
+

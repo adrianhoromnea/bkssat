@@ -15,11 +15,15 @@ class CreateDetaliuProgramarePlataManualsTable extends Migration
     {
         Schema::create('detaliu_programare_plata_manuals', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('numarOp');
             $table->integer('programare_platas_id');
-            $table->string('partener');
-            $table->string('descriere');
-            $table->integer('idMoneda');
-            $table->numeric('valoare');
+            $table->string('partener')->nullable();
+            $table->string('descriere')->nullable();
+            $table->integer('idMoneda')->default('4');
+            $table->decimal('valoare',11,2);
+            $table->integer('verificare')->default('0');
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
             $table->timestamps();
         });
     }

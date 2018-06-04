@@ -44,4 +44,8 @@ class ProgramarePlata extends Model
         $this->hasMany('App\DetaliuProgramarePlata','programare_platas_is','id');
     }
 
+    public function detaliiProgramarePlataManual(){
+        return $this->hasMany('App\DetaliuProgramarePlataManual','programare_platas_id','id');
+    }
+
 }

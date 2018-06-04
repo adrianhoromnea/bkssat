@@ -5,8 +5,9 @@
     $jsTables = "set";
 @endphp
 
-<div class="container-fluid">
+<div class="container-fluid" id="listaSistem">
     <div class="card">
+      <!--
         <div class="card-body">
           <div class="row breadcrumb" style="background:#F0F0F0">
             <div class="col">
@@ -28,7 +29,8 @@
             </div>
           </div>
         </div>
-        <div class="card-body">
+      -->
+        <div class="card-body pt-5">
           <div class="table-container double-scroll">
             <table class="table sortable table-bordered table-hover tablefixed" id="dataTable1" cellspacing="0" data-toggle="table">
               <thead>
