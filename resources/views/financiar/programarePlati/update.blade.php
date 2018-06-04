@@ -36,7 +36,8 @@
        
 
         <div>
-            <input type="button" class="btn float-right" value="Antet lista" title="Arata/Ascunde antet lista" data-toogle="tooltip" id="btnArataAntetLista">
+            <input type="button" class="btn btn-outline-secondary float-right mr-2 " value="Sistem/Manual" title="Arata alternativ lsite sistem / manual" data-toogle="tooltip" id="btnArataSistemManual">
+            <input type="button" class="btn btn-outline-secondary float-right mr-2" value="Antet lista" title="Arata/Ascunde antet lista" data-toogle="tooltip" id="btnArataAntetLista">
         </div>
             
             
@@ -167,8 +168,12 @@
             </div>
         </div>
   </div>
-  <!-- tabel lista solduri -->
-  @include('includes.tables.programareplati.detaliiprogramareplata') 
+    <!--  header tabele     -->
+    @include('includes.tables.programareplati.headertabelepp') 
+
+    <!-- tabel lista solduri -->
+    @include('includes.tables.programareplati.detaliiprogramareplata') 
+    @include('includes.tables.programareplati.detaliiprogramareplataaltele') 
 
     <!-- include modals  -->
     @include('includes.modals.programareplati.extrascontCreate')

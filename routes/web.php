@@ -193,6 +193,17 @@ Route::get('user/delete/{id}',[
         'as'=>'programareplati.genereazaPlati'
     ])->middleware('auth');
 
+    //**detalii programare plata manual */
+    Route::post('financiar/detaliippmanual/create',[
+        'uses'=>'DetaliuProgramarePlataController@create',
+        'as'=>'detaliuppm.create'
+    ])->middleware('auth');
+
+    Route::get('financiar/detaliippmanual/delete/{id}',[
+        'uses'=>'DetaliuProgramarePlataController@delete',
+        'as'=>'detaliuppm.delete'
+    ])->middleware('auth');
+
 
 
 //info anaf routes

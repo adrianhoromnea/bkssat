@@ -672,37 +672,131 @@ $(document).ready(function(){
         var sBaza = 0;
         var sTva = 0;
 
-        $('td.sSold').each(function(){
-            if($(this).closest('tr').is(':visible')){
-                sSold = sSold + Number($(this).text());
-            }
-        });
+        if($('#listaManual').attr('hidden')){
+            $('td.sSold').each(function(){
+                if($(this).closest('tr').is(':visible')){
+                    sSold = sSold + Number($(this).text());
+                }
+            });
 
-        $('td.sTotal').each(function(){
-            if($(this).closest('tr').is(':visible')){
-                sTotal = sTotal + Number($(this).text());
-            }
-        });
+            $('td.sTotal').each(function(){
+                if($(this).closest('tr').is(':visible')){
+                    sTotal = sTotal + Number($(this).text());
+                }
+            });
 
-        $('td.sBaza').each(function(){
-            if($(this).closest('tr').is(':visible')){
-                sBaza = sBaza + Number($(this).text());
-            }
-        });
+            $('td.sBaza').each(function(){
+                if($(this).closest('tr').is(':visible')){
+                    sBaza = sBaza + Number($(this).text());
+                }
+            });
 
-        $('td.sTva').each(function(){
-            if($(this).closest('tr').is(':visible')){
-                sTva = sTva + Number($(this).text());
-            }
-        });
+            $('td.sTva').each(function(){
+                if($(this).closest('tr').is(':visible')){
+                    sTva = sTva + Number($(this).text());
+                }
+            });
+        }else{
+            $('td.sSold').each(function(){
+                    sSold = sSold + Number($(this).text());
+            });
+
+            $('td.sTotal').each(function(){
+                    sTotal = sTotal + Number($(this).text());
+            });
+
+            $('td.sBaza').each(function(){
+                    sBaza = sBaza + Number($(this).text());
+            });
+
+            $('td.sTva').each(function(){
+                    sTva = sTva + Number($(this).text());
+            });
+        }
 
         $('#stSold').val($.number(sSold,2,',',' '));
         $('#stPlataTotal').val($.number(sTotal,2,',',' '));
         $('#stPlataBaza').val($.number(sBaza,2,',',' '));
         $('#stPlataTva').val($.number(sTva,2,',',' '));
+
+        var tsis =  $('#stPlataTotal').val() == '' ? '0' : $('#stPlataTotal').val();
+        if(tsis){tsis = tsis.replace(/\s/g,'')};
+        var tman =  $('#pm_plata_total').val() == '' ? '0' : $('#pm_plata_total').val();
+        if(tman){tman = tman.replace(/\s/g,'')};
+        if(tsis && tman){
+            var tbm = Number(tsis.replace(/\,/g, '.')) + Number(tman.replace(/\,/g, '.'));
+        }
+
+        var bsis = $('#stPlataBaza').val() == '' ? '0' : $('#stPlataBaza').val();
+        if(bsis){bsis = bsis.replace(/\s/g,'')};
+        var bman =  $('#pm_plata_baza').val() == '' ? '0' : $('#pm_plata_baza').val();
+        if(bman){bman = bman.replace(/\s/g,'')};
+        if(bsis && bman){
+            var bbm = Number(bsis.replace(/\,/g, '.')) + Number(bman.replace(/\,/g, '.'));
+        }
+
+        var tvasis = $('#stPlataTva').val() == '' ? '0' : $('#stPlataTva').val();
+        if(tvasis){tvasis = tvasis.replace(/\s/g,'')};
+        var tvaman =  $('#pm_plata_tva').val() == '' ? '0' : $('#pm_plata_tva').val();
+        if(tvaman){tvaman = tvaman.replace(/\s/g,'')};
+        if(tvasis && tvaman){
+            var tvabm = Number(tvasis.replace(/\,/g, '.')) + Number(tvaman.replace(/\,/g, '.'));
+        }
+
+        if(tbm && bbm){
+            $('#grand_total').val($.number(tbm,2,',',' '));
+            $('#grand_total_baza').val($.number(bbm,2,',',' '));
+            $('#grand_total_tva').val($.number(tvabm,2,',',' '));
+        }
+
     };
 
-   
+    function sumColumnsAltele(){
+        var s2Plata = 0;
+
+        if(!$('#listaManual').attr('hidden')){
+            $('td.pm_plata').each(function(){
+                if($(this).closest('tr').is(':visible')){
+                    s2Plata = s2Plata + Number($(this).text());
+                }
+            });
+            $('#pm_plata_total').val($.number(s2Plata,2,',',' '));
+        }else{
+            $('td.pm_plata').each(function(){
+                    s2Plata = s2Plata + Number($(this).text());
+            });
+            $('#pm_plata_total').val($.number(s2Plata,2,',',' '));
+        }
+        var tsis =  $('#stPlataTotal').val() == '' ? '0' : $('#stPlataTotal').val();
+        if(tsis){tsis = tsis.replace(/\s/g,'')};
+        var tman =  $('#pm_plata_total').val() == '' ? '0' : $('#pm_plata_total').val();
+        if(tman){tman = tman.replace(/\s/g,'')};
+        if(tsis && tman){
+            var tbm = Number(tsis.replace(/\,/g, '.')) + Number(tman.replace(/\,/g, '.'));
+        }
+        
+        var bsis = $('#stPlataBaza').val() == '' ? '0' : $('#stPlataBaza').val();
+        if(bsis){bsis = bsis.replace(/\s/g,'')};
+        var bman =  $('#pm_plata_baza').val() == '' ? '0' : $('#pm_plata_baza').val();
+        if(bman){bman = bman.replace(/\s/g,'')};
+        if(bsis && bman){
+            var bbm = Number(bsis.replace(/\,/g, '.')) + Number(bman.replace(/\,/g, '.'));
+        }
+
+        var tvasis = $('#stPlataTva').val() == '' ? '0' : $('#stPlataTva').val();
+        if(tvasis){tvasis = tvasis.replace(/\s/g,'')};
+        var tvaman =  $('#pm_plata_tva').val() == '' ? '0' : $('#pm_plata_tva').val();
+        if(tvaman){tvaman = tvaman.replace(/\s/g,'')};
+        if(tvasis && tvaman){
+            var tvabm = Number(tvasis.replace(/\,/g, '.')) + Number(tvaman.replace(/\,/g, '.'));
+        }
+
+        if(tbm && bbm){
+            $('#grand_total').val($.number(tbm,2,',',' '));
+            $('#grand_total_baza').val($.number(bbm,2,',',' '));
+            $('#grand_total_tva').val($.number(tvabm,2,',',' '));
+        }
+    };
 
     function checkErrors(){
         //**pp numar op - numeric */
@@ -747,6 +841,39 @@ $(document).ready(function(){
             return type == 'aproba' ? ckAproba : ckInitiaza;
     }
 
+    function dataTableMethods2(){
+        var baseUrl = $('#baseUrl').val();
+
+        $('#dataTable2').on('click','tbody tr td #btnDeleteRow2',function(){
+            var id = $(this).closest('tr').find('td:eq(0)').text();
+            $(this).closest('tr').remove();
+            $.ajax({
+                type:'get',
+                url:baseUrl + '/financiar/detaliippmanual/delete/' + id,
+                success:function(){
+                    sumColumnsAltele();
+                },
+                error:function(){
+                    alert('Eroare - [stergere plata suplimentara]! Contactati administratorul de sistem.');
+                }
+            });
+        });
+
+        $('#pm_addNew').on('click',function(){
+            $('#pm_form').prop('hidden',false);
+            $('#pm_total').prop('hidden',true);
+            $('#pm_op').focus().val('');
+            $('#pm_partener').val('');
+            $('#pm_explicatii').val('');
+            $('#pm_valoare').val('');
+            
+            $('#pm_op, #pm_partener, #pm_explicatii, #pm_valoare').removeClass('is-invalid is-valid');
+    
+            $(this).prop('hidden',true);
+    
+        });
+    };
+
     $("#startNumar").keyup(function(){
         checkErrors();
     });
@@ -759,9 +886,13 @@ $(document).ready(function(){
     if(typeof user_roles != 'undefined' && typeof status_pp != 'undefined'){
         if(getrights('initiaza') == 1 && status_pp == 0){
             dataTableMethods();
+            dataTableMethods2();
         }
     }
+    
+    sumColumnsAltele();
     sumColumns();
+
 
     //**event: change cont bancar */
     $('#contBancar').on('change', function(){
@@ -811,7 +942,121 @@ $(document).ready(function(){
         $('#createExtrasModal').modal('show');
     });
     
-     //**table detalliListaProgramarePlati */
+    //**plati suplimentare */
+
+    $('#pm_renunta').on('click',function(){
+        $('#pm_form').prop('hidden',true);
+        $('#pm_total').prop('hidden',false);
+        $('#pm_op').focus();
+        $('#pm_addNew').prop('hidden',false);
+    });
+
+    $('#pm_op').on('keypress keyup blur',function (event) {
+       $(this).val($(this).val().replace(/[^\d].+/, ''));
+        if($.isNumeric($(this).val())){
+            $(this).removeClass('is-invalid');
+            $(this).addClass('is-valid');
+        }else{
+            $(this).removeClass('is-valid');
+            $(this).addClass('is-invalid');
+        }
+
+    });
+
+    $('#pm_valoare').on('keyup',function (event) {
+        if($.isNumeric($(this).val())){
+            $(this).removeClass('is-invalid');
+            $(this).addClass('is-valid');
+        }else{
+            $(this).removeClass('is-valid');
+            $(this).addClass('is-invalid');
+        }
+    });
+
+    $('#pm_salveaza').on('click',function(){
+        //validations
+        var errors = 0;
+        var baseUrl = $('#baseUrl').val();
+        
+        if($('#pm_op').val() == '' || !$.isNumeric($('#pm_op').val())){
+            $('#pm_op').addClass('is-invalid');
+            errors = Number(errors) + 1;
+        }
+
+        if($('#pm_partener').val() == ''){
+            $('#pm_partener').addClass('is-invalid');
+            errors = Number(errors) + 1;
+        }
+
+        if($('#pm_explicatii').val() == ''){
+            $('#pm_explicatii').addClass('is-invalid');
+            errors = Number(errors) + 1;
+        }
+
+        if($('#pm_valoare').val() == '' || !$.isNumeric($('#pm_valoare').val())){
+            $('#pm_valoare').addClass('is-invalid');
+            errors = Number(errors) + 1;
+        }
+
+        if(errors > 0){
+            return;
+        }else{
+            $.ajax({
+                type:'post',
+                url:baseUrl + '/financiar/detaliippmanual/create',
+                data:{
+                    'programare_platas_id'  :   programare_platas_id,
+                    'numarOp'               :   $('#pm_op').val(),
+                    'partener'              :   $('#pm_partener').val(),
+                    'explicatii'            :   $('#pm_explicatii').val(),
+                    'valoare'               :   $('#pm_valoare').val(),
+                },
+                success:function(data){
+                   // alert('succes');
+                    //**append data to table */
+
+                    var rowsno =  $('#dataTable2 tbody tr').length;
+
+                    if(rowsno>0){
+                        $('#dataTable2 tbody tr:first').before(
+                            '<tr><td hidden value="' + data.detaliualtele.id +'">' + data.detaliualtele.id +'</td>'
+                            + '<td width:50px style="max-width: 100px">' + data.detaliualtele.numarOp +'</td>'
+                            + '<td style="max-width: 150px">' + data.detaliualtele.partener +'</td>'
+                            + '<td style="max-width: 300px">' + data.detaliualtele.descriere +'</td>'
+                            + '<td style="max-width: 25px" class="pm_plata">' + data.detaliualtele.valoare +'</td>'
+                            + '<td hidden>' + data.detaliualtele.verificare +'</td>'
+                            + '<td  style="min-width: 30px"><a href="#" style="color:red; text-decoration:none"><i class="fa fa-trash-o" title="Sterge linie" data-toogle="tooltip" id="btnDeleteRow2"></i></a></td></tr>'
+                        );
+                    }else{
+                        $('#dataTable2 tbody').append(
+                            '<tr><td hidden value="' + data.detaliualtele.id +'">' + data.detaliualtele.id +'</td>'
+                            + '<td width:50px style="max-width: 100px">' + data.detaliualtele.numarOp +'</td>'
+                            + '<td style="max-width: 150px">' + data.detaliualtele.partener +'</td>'
+                            + '<td style="max-width: 300px">' + data.detaliualtele.descriere +'</td>'
+                            + '<td style="max-width: 25px" class="pm_plata">' + data.detaliualtele.valoare +'</td>'
+                            + '<td hidden>' + data.detaliualtele.verificare +'</td>'
+                            + '<td  style="min-width: 30px"><a href="#" style="color:red; text-decoration:none"><i class="fa fa-trash-o" title="Sterge linie" data-toogle="tooltip" id="btnDeleteRow2"></i></a></td></tr>'
+                        );
+                    }
+
+                    //**empty form fields */
+                    $('#pm_op').focus().val('');
+                    $('#pm_partener').val('');
+                    $('#pm_explicatii').val('');
+                    $('#pm_valoare').val('');
+
+                    //**subtotals */
+                   sumColumnsAltele();
+                },
+                error:function(){
+                    alert('Eroare - [salvare plata suplimentara]! Contactati administratorul de sistem.');
+                }
+            });
+        }
+    });
+
+
+
 
     //**modal detaliuprogramareplata - misc */
         //**select all on focus/
@@ -854,6 +1099,22 @@ $(document).ready(function(){
             $('#updateAntet').toggle();
          });
 
+         //**Show/Hide liste sistem si manuale*/
+        $('#btnArataSistemManual').click(function(){
+           // alert ('merge');
+            if($('#listaManual').attr('hidden')){
+                $('#listaManual').prop('hidden',false);
+                $('#d_inputSearch2').prop('hidden',false);
+                $('#listaSistem').prop('hidden',true);
+                $('#d_inputSearch').prop('hidden',true);
+                
+            }else{
+                $('#listaManual').prop('hidden',true);
+                $('#d_inputSearch2').prop('hidden',true);
+                $('#listaSistem').prop('hidden',false);
+                $('#d_inputSearch').prop('hidden',false);
+            }
+        });
 
 
 
