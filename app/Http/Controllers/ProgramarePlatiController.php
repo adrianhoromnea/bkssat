@@ -17,6 +17,7 @@ use DB;
 use Validator;
 use App\Services\UpdateAnafData;
 use App\Services\GetDocumentsInfo;
+use Excel;
 
 
 class ProgramarePlatiController extends Controller
@@ -904,6 +905,97 @@ class ProgramarePlatiController extends Controller
         return redirect()->route('showUpdateListaPp',['id'=>$id]);
 
     }
+
+    //**exports / downloads */
+
+    public function export($idProgramare,$type){
+        //**type = 0 => csv; 1 => xls */
+        $query = "select
+                    dpp.idPartener as idPartener,
+                    ltrim(rtrim(p.denumirepartener)) as partener,
+                    dpp.cont_baza_id as idContBaza,
+                    ltrim(rtrim(bp.ContBanca)) as contbaza,
+                    sum(dpp.plataBaza) as valoareBaza,
+                    ltrim(rtrim(p.CodPartener)) as explicatii2
+                from
+                    dbo.detaliu_programare_platas dpp inner join dbo.NomPartener p
+                        on dpp.idPartener = p.idNomPartener
+                    inner join NomBancaPartener bp
+                        on dpp.cont_baza_id = bp.idNomBancaPartener		
+                where
+                    dpp.programare_platas_id = $idProgramare
+                and
+                    dpp.status = 0
+                and
+                    dpp.cont_baza_id <> 0
+                and
+                    dpp.plataTotal <> 0
+                group by
+                    dpp.idPartener,
+                    p.denumirepartener,
+                    dpp.cont_baza_id,
+                    bp.ContBanca,
+                    p.CodPartener
+                 ";
+        $barray = DB::select($query);
+        $narray = array();
+        foreach($barray as $ba){
+            //dd($ba);
+            array_push($narray,[
+                'tert' => $ba->partener,
+                'cont' => $ba->contbaza,
+                'plata baza' => $ba->valoareBaza,
+                'explicatii1' =>$this->makeExplicatii($idProgramare,$ba->idPartener,$ba->idContBaza),
+                'explicatii2' => $ba->explicatii2
+            ]);
+        };
+
+        $farray = json_decode( json_encode($narray), true);
+
+        if($type == 0){
+            Excel::create('FP',function($excel) use($farray) {
+                $excel->sheet('Sheet1', function($sheet) use($farray) {
+                    $sheet->fromArray($farray);
+                });
+
+            })->download('csv');
+        }else{
+            Excel::create('FP',function($excel) use($farray) {
+                $excel->sheet('Sheet1', function($sheet) use($farray) {
+                    $sheet->fromArray($farray);
+                });
+
+            })->download('xls');
+        }
+
+    }
+
+    protected function makeExplicatii($idProgramare,$idPartener,$idContBanca){
+        $explicatie = '';
+        $query="select distinct
+                    ltrim(rtrim(dpp.numarDocument)) + '/' + convert(varchar(2),day(dpp.dataDocument)) + '.' + convert(varchar(2),month(dpp.dataDocument)) + '.' + convert(varchar(4),year(dpp.dataDocument))  + ' ' as nnn
+                from
+                    dbo.detaliu_programare_platas dpp
+                where
+                    dpp.programare_platas_id = $idProgramare
+                and
+                    dpp.status = 0
+                and
+                    dpp.cont_baza_id = $idContBanca
+                and
+                    dpp.plataTotal <> 0
+                and 
+                    dpp.idPartener = $idPartener
+        ";
+
+        $results = DB::select($query);
+        foreach($results as $result){
+            $explicatie .= $result->nnn;
+        }
+
+        return !$explicatie ? 'no value' : $explicatie;
+    }
+
 
 
 }
