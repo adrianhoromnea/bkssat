@@ -3,8 +3,11 @@
         <div class="text-center">
           <small>Copyright © Brikston Construction Solutions
             @php
-              echo date('Y') . " - Versiune 1.04";
+              echo date('Y') . " - Versiune 1.03";
             @endphp
+
+           
+           
            </small>
         </div>
       </div>
