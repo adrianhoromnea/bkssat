@@ -14,42 +14,28 @@
           Modifica programare plata -  {{$programare->number}} - din - {{substr($programare->data,0,10)}}. Status: <strong>{{$status}} </strong>
         </div>
         <div class="col">
-            @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 0)
-                <a href="{{route('programareplati.trimiteSpreAprobare',$id = $programare->id)}}"><input type="button" class="btn btn-info" value="Trimite spre aprobare" title="Trimite spre aprobare" data-toogle="tooltip" id="btnTrimiteAprobare"></a>
-            @endif
-            @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 0)
-                <a href="{{route('detaliilista.updateDetaliiProgramarePlata',$id = $programare->id)}}"><input type="button" class="btn btn-outline-secondary" value="Actualizeaza lista" title="Actualizeaza lista" data-toogle="tooltip" id="btnActualizeazaLista"></a>
-            @endif
-            @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 2)
-            <a href="{{route('programareplati.genereazaPlati',$id = $programare->id)}}"><input type="button" class="btn btn-success" value="Genereaza plati" title="Genereaza plati" data-toogle="tooltip" id="btnGenereazaPlati"></a>
-            @endif
-            @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 3))
-            <a href="{{route('programareplati.aproba',$id = $programare->id)}}"><input type="button" class="btn btn-info" value="Aproba" title="Aproba" data-toogle="tooltip" id="btnAproba"></a>
-            @endif
-            @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 2))
-            <a href="{{route('programareplati.respinge',$id = $programare->id)}}"><input type="button" class="btn btn-danger" value="Respinge" title="Respinge" data-toogle="tooltip" id="btnRespinge"></a>
-            @endif
-            @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 2 OR $programare->status == 3 OR $programare->status == 5))
-            <a href="{{route('programareplati.reanaliza',$id = $programare->id)}}"><input type="button" class="btn btn-warning" value="Reanaliza" title="Trimite spre reanaliza" data-toogle="tooltip" id="btnReanaliza"></a>
-            @endif
-        </div>
-        @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 2)
-        <div class="col">
-            <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Export
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <h6 class="dropdown-header"><strong>ING</strong></h6>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{route('programareplata.export',[$id => $programare->id,0])}}">CSV</a>
-                        <a class="dropdown-item" href="{{route('programareplata.export',[$id => $programare->id,1])}}">Excel</a>
-                    </div>
-            </div>  
-        </div>
+        @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 0)
+            <a href="{{route('programareplati.trimiteSpreAprobare',$id = $programare->id)}}"><input type="button" class="btn btn-info" value="Trimite spre aprobare" title="Trimite spre aprobare" data-toogle="tooltip" id="btnTrimiteAprobare"></a>
         @endif
+        @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 0)
+            <a href="{{route('detaliilista.updateDetaliiProgramarePlata',$id = $programare->id)}}"><input type="button" class="btn btn-outline-secondary" value="Actualizeaza lista" title="Actualizeaza lista" data-toogle="tooltip" id="btnActualizeazaLista"></a>
+        @endif
+        @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 2)
+        <a href="{{route('programareplati.genereazaPlati',$id = $programare->id)}}"><input type="button" class="btn btn-success" value="Genereaza plati" title="Genereaza plati" data-toogle="tooltip" id="btnGenereazaPlati"></a>
+        @endif
+        @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 3))
+        <a href="{{route('programareplati.aproba',$id = $programare->id)}}"><input type="button" class="btn btn-info" value="Aproba" title="Aproba" data-toogle="tooltip" id="btnAproba"></a>
+        @endif
+        @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 2))
+        <a href="{{route('programareplati.respinge',$id = $programare->id)}}"><input type="button" class="btn btn-danger" value="Respinge" title="Respinge" data-toogle="tooltip" id="btnRespinge"></a>
+        @endif
+        @if(auth()->user()->hasAnyRole(['Aprobator plati']) AND ($programare->status == 1 OR $programare->status == 2 OR $programare->status == 3 OR $programare->status == 5))
+        <a href="{{route('programareplati.reanaliza',$id = $programare->id)}}"><input type="button" class="btn btn-warning" value="Reanaliza" title="Trimite spre reanaliza" data-toogle="tooltip" id="btnReanaliza"></a>
+        @endif
+        </div>
+       
 
-        <div class="col">
+        <div>
             <input type="button" class="btn btn-outline-secondary float-right mr-2 " value="Sistem/Manual" title="Arata alternativ lsite sistem / manual" data-toogle="tooltip" id="btnArataSistemManual">
             <input type="button" class="btn btn-outline-secondary float-right mr-2" value="Antet lista" title="Arata/Ascunde antet lista" data-toogle="tooltip" id="btnArataAntetLista">
         </div>
