@@ -204,6 +204,11 @@ Route::get('user/delete/{id}',[
         'as'=>'detaliuppm.delete'
     ])->middleware('auth');
 
+    //**export */
+    Route::get('financiar/programareplati/export/{id}/{type}',[
+        'uses'=>'ProgramarePlatiController@export',
+        'as'=>'programareplata.export'
+    ])->middleware('auth');
 
 
 //info anaf routes
@@ -235,7 +240,7 @@ Route::get('ajax',function(){
     return view('message');
  });
  Route::get('teste',[
-     'uses'=>'AjaxController@index',
+     'uses'=>'ProgramarePlatiController@export',
      'as'=>'getmsg'
      
      ]);
