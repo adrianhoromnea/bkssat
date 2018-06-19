@@ -156,7 +156,11 @@ class ProgramarePlatiController extends Controller
             case pp.status
                 when 0 then 'Initiala'
                 when 1 then 'Generata'
-            end as statusVal
+                when 2 then 'Eroare'
+                when 3 then 'Extra modul'
+            end as statusVal,
+            bp.Implicita,
+            pp.checked as checked
         from
             dbo.detaliu_programare_platas pp inner join dbo.NomPlanCont pc
                 on pp.idContContabil = pc.IdCont
@@ -182,12 +186,15 @@ class ProgramarePlatiController extends Controller
             m.idNomMoneda as idMOneda,
             m.SimbolMoneda as moneda,
             dpp.valoare as valoare,
-            dpp.verificare as verificare
+            dpp.verificare as verificare,
+            bp.ContBanca as cont
         from 
             dbo.detaliu_programare_plata_manuals dpp inner join dbo.NomMoneda m
                 on dpp.idMoneda = m.idNomMoneda
+            left join dbo.NomBancaPartener bp
+                on dpp.idContBaza = bp.idNomBancaPartener
         where
-            dpp.programare_platas_id =" . $id . "
+            dpp.programare_platas_id = $id
         order by 
             dpp.numarOp desc";
 
@@ -453,7 +460,8 @@ class ProgramarePlatiController extends Controller
                 when 2 then 'Eroare'
                 when 3 then 'Extra modul'
             end as statusVal,
-            bp.Implicita
+            bp.Implicita,
+            pp.checked as checked
         from
             dbo.detaliu_programare_platas pp inner join dbo.NomPlanCont pc
                 on pp.idContContabil = pc.IdCont
@@ -512,7 +520,8 @@ class ProgramarePlatiController extends Controller
                 when 2 then 'Eroare'
                 when 3 then 'Extra modul'
             end as statusVal,
-            bp.Implicita
+            bp.Implicita,
+            pp.checked as checked
         from
             dbo.detaliu_programare_platas pp inner join dbo.NomPlanCont pc
                 on pp.idContContabil = pc.IdCont
@@ -782,6 +791,26 @@ class ProgramarePlatiController extends Controller
             return response()->json(['numarop'=>$request->numarOp]);
     }
 
+    public function updateChecked(Request $request, $idRow){
+        //**update checked */
+        $ckval = $request->status == 'da' ? '1' : '0';
+        DB::table('detaliu_programare_platas')
+            ->where('id',$idRow)
+            ->update(['checked'=>$ckval]);
+        
+            return response()->json(['checked'=>$ckval]);
+    }
+
+    public function updateCheckedAltele(Request $request, $idRow){
+        //**update checked */
+        $ckval = $request->status == 'da' ? '1' : '0';
+        DB::table('detaliu_programare_plata_manuals')
+            ->where('id',$idRow)
+            ->update(['verificare'=>$ckval]);
+        
+            return response()->json(['checked'=>$ckval]);
+    }
+
     public function updateDetaliiProgramarePlata($idProgramarePlata){
         //** update detaliu_programare_platas*/
 
@@ -910,43 +939,78 @@ class ProgramarePlatiController extends Controller
 
     public function export($idProgramare,$type){
         //**type = 0 => csv; 1 => xls */
-        $query = "select
-                    dpp.idPartener as idPartener,
-                    ltrim(rtrim(p.denumirepartener)) as partener,
-                    dpp.cont_baza_id as idContBaza,
-                    ltrim(rtrim(bp.ContBanca)) as contbaza,
-                    sum(dpp.plataBaza) as valoareBaza,
-                    ltrim(rtrim(p.CodPartener)) as explicatii2
-                from
-                    dbo.detaliu_programare_platas dpp inner join dbo.NomPartener p
-                        on dpp.idPartener = p.idNomPartener
-                    inner join NomBancaPartener bp
-                        on dpp.cont_baza_id = bp.idNomBancaPartener		
-                where
-                    dpp.programare_platas_id = $idProgramare
-                and
-                    dpp.status = 0
-                and
-                    dpp.cont_baza_id <> 0
-                and
-                    dpp.plataTotal <> 0
-                group by
-                    dpp.idPartener,
-                    p.denumirepartener,
-                    dpp.cont_baza_id,
-                    bp.ContBanca,
-                    p.CodPartener
+        $query = "select * from 
+            (select
+                dpp.numarop as op,
+                dpp.idPartener as idPartener,
+                ltrim(rtrim(p.denumirepartener)) as partener,
+                dpp.cont_baza_id as idContBaza,
+                ltrim(rtrim(bp.ContBanca)) as contbaza,
+                sum(dpp.plataBaza) as valoareBaza,
+                ltrim(rtrim(p.CodPartener)) as explicatii2
+            from
+                dbo.detaliu_programare_platas dpp inner join dbo.NomPartener p
+                    on dpp.idPartener = p.idNomPartener
+                inner join NomBancaPartener bp
+                    on dpp.cont_baza_id = bp.idNomBancaPartener		
+            where
+                dpp.programare_platas_id = $idProgramare
+            and
+                dpp.status in (0,1)
+            and
+                dpp.cont_baza_id <> 0
+            and
+                dpp.plataTotal <> 0
+            group by
+                dpp.numarop,
+                dpp.idPartener,
+                p.denumirepartener,
+                dpp.cont_baza_id,
+                bp.ContBanca,
+                p.CodPartener
+            union all
+            select
+                dpm.numarOp as op,
+                dpm.idPartener as idPartener,
+                ltrim(rtrim(p.DenumirePartener)) as partener,
+                dpm.idContBaza as idContBaza,
+                ltrim(rtrim(ContBanca)) as conbaza,
+                sum(dpm.valoare) as valoareBaza,
+                ltrim(rtrim(p.CodPartener)) as explicatii2
+            from
+                dbo.detaliu_programare_plata_manuals dpm inner join dbo.NomPartener p 
+                    on dpm.idPartener = p.idNomPartener
+                inner join NomBancaPartener bp
+                    on dpm.idContBaza = bp.idNomBancaPartener	
+            where
+                dpm.programare_platas_id= $idProgramare
+            and
+                dpm.idContBaza is not null
+            and
+                dpm.idPartener is not null
+            and
+                dpm.valoare <> 0
+            group by
+                dpm.numarOp,
+                dpm.idPartener,
+                ltrim(rtrim(p.DenumirePartener)),
+                dpm.idContBaza,
+                ltrim(rtrim(ContBanca)),
+                ltrim(rtrim(p.CodPartener))
+                ) nnn
+            order by nnn.op 
                  ";
         $barray = DB::select($query);
         $narray = array();
         foreach($barray as $ba){
             //dd($ba);
             array_push($narray,[
-                'tert' => $ba->partener,
-                'cont' => $ba->contbaza,
-                'plata baza' => $ba->valoareBaza,
-                'explicatii1' =>$this->makeExplicatii($idProgramare,$ba->idPartener,$ba->idContBaza),
-                'explicatii2' => $ba->explicatii2
+                'numarop'       =>  $ba->op,
+                'tert'          =>  $ba->partener,
+                'cont'          =>  $ba->contbaza,
+                'plata baza'    =>  $ba->valoareBaza,
+                'explicatii1'   =>  $this->makeExplicatii($idProgramare,$ba->idPartener,$ba->idContBaza),
+                'explicatii2'   =>  $ba->explicatii2
             ]);
         };
 
@@ -973,19 +1037,32 @@ class ProgramarePlatiController extends Controller
     protected function makeExplicatii($idProgramare,$idPartener,$idContBanca){
         $explicatie = '';
         $query="select distinct
-                    ltrim(rtrim(dpp.numarDocument)) + '/' + convert(varchar(2),day(dpp.dataDocument)) + '.' + convert(varchar(2),month(dpp.dataDocument)) + '.' + convert(varchar(4),year(dpp.dataDocument))  + ' ' as nnn
+                    ltrim(rtrim(dpp.numarDocument)) + '/'  as nnn
                 from
                     dbo.detaliu_programare_platas dpp
                 where
                     dpp.programare_platas_id = $idProgramare
                 and
-                    dpp.status = 0
+                    dpp.status in (0,1)
                 and
                     dpp.cont_baza_id = $idContBanca
                 and
                     dpp.plataTotal <> 0
                 and 
                     dpp.idPartener = $idPartener
+
+                union all
+
+                select distinct
+                    isnull(ltrim(rtrim(ppm.descriere)),'') as nnn
+                from
+                    dbo.detaliu_programare_plata_manuals ppm
+                where
+                    ppm.programare_platas_id = $idProgramare
+                and
+                    ppm.idContBaza = $idContBanca
+                and
+                    ppm.idPartener = $idPartener
         ";
 
         $results = DB::select($query);
@@ -993,7 +1070,7 @@ class ProgramarePlatiController extends Controller
             $explicatie .= $result->nnn;
         }
 
-        return !$explicatie ? 'no value' : $explicatie;
+        return !$explicatie ? '' : $explicatie;
     }
 
 

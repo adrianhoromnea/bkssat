@@ -7,29 +7,6 @@
 
 <div class="container-fluid" id="listaSistem">
     <div class="card">
-      <!--
-        <div class="card-body">
-          <div class="row breadcrumb" style="background:#F0F0F0">
-            <div class="col">
-              <input type="text" id = "inputSearch" style="text-align:left" placeholder="Cauta ...">
-              &nbsp; &nbsp;<a href="#"><i class="fa fa-building" id="goSubtotal"  data-toogle="tooltip" title="Subtotal"></i></a>
-            </div>
-            
-            <div class="col">
-              Sold: &nbsp;<input type="text" readonly id = "stSold" style="text-align:center">&nbsp; &nbsp; &nbsp;
-            </div>
-            <div class="col">
-              Total plati: &nbsp;<input type="text" readonly id = "stPlataTotal" style="text-align:center">&nbsp; &nbsp; &nbsp;
-            </div>
-            <div class="col">
-              Plata baza: &nbsp;<input type="text" readonly id = "stPlataBaza" style="text-align:center">&nbsp; &nbsp; &nbsp;
-            </div>
-            <div class="col">
-              Plata TVA: &nbsp;<input type="text" readonly id = "stPlataTva" style="text-align:center">&nbsp; &nbsp; &nbsp;
-            </div>
-          </div>
-        </div>
-      -->
         <div class="card-body pt-5">
           <div class="table-container double-scroll">
             <table class="table sortable table-bordered table-hover tablefixed" id="dataTable1" cellspacing="0" data-toggle="table">
@@ -53,6 +30,7 @@
                   <th class="" ><div>Plata baza</div></th>
                   <th class=""><div>Plata TVA</div></th>
                   <th class=""><div>Status</div></th>
+                  <th class=""><div>Ver</div></th>
                   <th><div>...</div></th>
                 </tr>
               </thead>
@@ -71,12 +49,17 @@
                         <td class="" >{{$detaliu->dataDocument}}</td>
                         <td class="" >{{$detaliu->dataScadenta}}</td>
                         <td class="">{{$detaliu->zileDepasite}}</td>
-                        <td class="sSold ">{{$detaliu->sold}}</td>
+                        <td class="sSold " valoare = "{{$detaliu->sold}}">{{$detaliu->sold}}</td>
                         <td class="" style="min-width: 50px">{{$detaliu->splitTVA}}</td>
-                        <td class="sTotal "style="min-width: 120px">{{$detaliu->plataTotal}}</td>
-                        <td class="sBaza " style="min-width: 120px;cursor:pointer">{{$detaliu->plataBaza}}</td>
-                        <td class="sTva " style="min-width: 120px" >{{$detaliu->plataTVA}}</td>
+                        <td class="sTotal "style="min-width: 120px" valoare = "{{$detaliu->plataTotal}}">{{$detaliu->plataTotal}}</td>
+                        <td class="sBaza " style="min-width: 120px;cursor:pointer" valoare = "{{$detaliu->plataBaza}}">{{$detaliu->plataBaza}}</td>
+                        <td class="sTva " style="min-width: 120px" valoare = "{{$detaliu->plataTVA}}">{{$detaliu->plataTVA}}</td>
                         <td class="" >{{$detaliu->statusVal}}</td>
+                        <td style="text-align: center" class="ck">
+                          <div class="checkbox-inline justify-content-center align-items-center">
+                            <input type="checkbox" name="check" value="{{$detaliu->checked}}" class="ckline" {{$detaliu->checked == 1 ? 'checked' : ''}}>
+                          </div>
+                        </td>
                         <td  style="min-width: 30px"><a href="#" style="color:red; text-decoration:none"><i class="fa fa-trash-o" title="Sterge linie" data-toogle="tooltip" id="btnDeleteRow"></i></a></td>
                     </tr>
                   @endforeach

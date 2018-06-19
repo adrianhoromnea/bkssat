@@ -23,4 +23,8 @@ class NomPartener extends Model
     public function detaliuProgramarePlata(){
         return $this->hasMany('App\DetaliuProgramarePlata','idPartener','idNomPartener');
     }
+
+    public function detaliuProgramarePlataManual(){
+        return $this->hasMany('App\NomPartener','idPartener','idNomPartener');
+    }
 }

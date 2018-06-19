@@ -195,7 +195,7 @@ $(document).ready(function(){
                         //**set variables */
                         var pBaza           = data.detaliu[0].plataBaza;
                         var pTotal          = data.detaliu[0].plataTotal;
-                        var pTVa            = data.detaliu[0].PlataTVA;
+                        var pTVa            = data.detaliu[0].plataTVA;
                         var sold            = data.detaliu[0].sold;
                         var partener        = data.detaliu[0].denumirePartener;
                         var contContabil    = data.detaliu[0].simbolCont;
@@ -211,7 +211,9 @@ $(document).ready(function(){
                         var numarOp         = data.detaliu[0].numarOp;
                         var splitTVA        = data.detaliu[0].splitTVA;
                         var idNomDocument   = data.detaliu[0].idDocument;
-                    
+                        
+                        var pBazaOld = pBaza;
+                        var pTVaOld = pTVa;
 
                         if(idContBaza == 0){
                             alert('Operatiune esuata! Verifica conturile bancare partener.');
@@ -221,10 +223,15 @@ $(document).ready(function(){
                             if(splitTVA != 'da'){
                                 if(Number($(c_platabaza).text()) == 0){
                                     $(c_platabaza).text(sold);
+                                    $(c_platabaza).attr('valoare',sold);
                                     $(c_platatotal).text(
                                         Number($(c_platabaza).text()) + Number($(c_platatva).text())
-                                    )
+                                    );
+                                    $(c_platatotal).attr('valoare',
+                                        Number($(c_platabaza).text()) + Number($(c_platatva).text())
+                                    );
                                     $(c_platatva).text('.00');
+                                    $(c_platatva).attr('valoare','.00');
 
                                     pBaza = Number(c_platabaza.text());
                                     pTotal = Number(c_platatotal.text());
@@ -232,8 +239,11 @@ $(document).ready(function(){
                                 }
                                 else{
                                     $(c_platabaza).text('.00');
+                                    $(c_platabaza).attr('valoare','.00');
                                     $(c_platatotal).text('.00');
+                                    $(c_platatotal).attr('valoare','.00');
                                     $(c_platatva).text('.00');
+                                    $(c_platatva).attr('valoare','.00');
 
                                     pBaza = Number(c_platabaza.text());
                                     pTotal = Number(c_platatotal.text());
@@ -256,7 +266,11 @@ $(document).ready(function(){
                                     success: function(data){
                                         //**sum columns */
                                         $(c_numarop).text(data.numarop);
-                                        sumColumns();
+                                        //sumColumns();
+                                        sumColumnsItem('bazasistem',pBaza,pBazaOld,'plus','1');
+                                        sumCsv();
+                                        countCheckedRoes();
+                                        sumChecked();
                                     },
                                     error: function(){
                                         alert('Eroare - [salvare date la click]! Contactati administratorul de sistem.');
@@ -269,15 +283,6 @@ $(document).ready(function(){
                                     return;
                                 }else{
                                     if(Number($(c_platabaza).text()) == 0 && Number($(c_platatva ).text()) == 0){
-                                        /*
-                                        $(c_platabaza).text(sold);
-                                        $(c_platatotal).text(
-                                            Number($(c_platabaza).text()) + Number($(c_platatva).text())
-                                        )
-                                        pBaza = Number(c_platabaza.text());
-                                        pTotal = Number(c_platatotal.text());
-                                        pTVa = Number(c_platatva.text());
-                                        */
                                        $.ajax({
                                             type: 'GET',
                                             url: baseUrl + '/financiar/programareplati/getBazaTvaData',
@@ -317,7 +322,12 @@ $(document).ready(function(){
                                                     success: function(data){
                                                         //**sum columns */
                                                         $(c_numarop).text(data.numarop);
-                                                        sumColumns();
+                                                        //sumColumns();
+                                                        sumColumnsItem('bazasistem',pBaza,pBazaOld,'plus','1');
+                                                        sumColumnsItem('tvasistem',pTVa,pTVaOld,'plus','0');
+                                                        sumCsv();
+                                                        countCheckedRoes();
+                                                        sumChecked();
                                                     },
                                                     error: function(){
                                                         alert('Eroare - [salvare date la click - splitTVA]! Contactati administratorul de sistem.');
@@ -354,7 +364,12 @@ $(document).ready(function(){
                                             success: function(data){
                                                 //**sum columns */
                                                 $(c_numarop).text(data.numarop);
-                                                sumColumns();
+                                                //sumColumns();
+                                                sumColumnsItem('bazasistem',pBaza,pBazaOld,'plus','1');
+                                                sumColumnsItem('tvasistem',pTVa,pTVaOld,'plus','0');
+                                                sumCsv();
+                                                countCheckedRoes();
+                                                sumChecked();
                                             },
                                             error: function(){
                                                 alert('Eroare - [salvare date la click - splitTVA]! Contactati administratorul de sistem.');
@@ -381,7 +396,12 @@ $(document).ready(function(){
                     routePath = rPath,
                     frontElement = $('#dataTable1').find('[rowId=' + idRow +']').closest('tr'),
                     customText = cText);
-                sumColumns();
+                //sumColumns();
+                sumColumnsItem('bazasistem',c_platatotal.attr('valoare'),0,'min','1');
+                sumColumnsItem('tvasistem',c_platatva.attr('valoare'),0,'min','0');
+                sumCsv();
+                countCheckedRoes();
+                sumChecked();
             });
 
             //**change OP number */
@@ -585,6 +605,36 @@ $(document).ready(function(){
                     });
             });
         });
+
+        $('.ckline').on('click',function(event){
+            //**get path */
+            var baseUrl = $('#baseUrl').val();
+
+            //**get ck status */
+            var ck = 'nedefinit';
+            ck = $(this).prop('checked') ? 'da' : 'nu';
+            var idRow = $(this).closest('tr').find('td:eq(0)').attr('rowId');
+
+            if(idRow){
+                //**insert data into database */ 
+                $.ajax({
+                    type:'post',
+                    url:baseUrl + '/financiar/detaliuProgramarePlati/updateChecked/' + idRow,
+                    data:{
+                        'status':ck
+                    },
+                    success:function(data){
+                        countCheckedRoes();
+                        sumChecked();
+                    },
+                    error:function(){
+                        alert('Eroare - [salvare check]! Contactati administratorul de sistem.');
+                    }
+                });
+
+            } 
+           
+        });
     };
 
     function saveModalData(){
@@ -651,12 +701,20 @@ $(document).ready(function(){
                         cont_tva.text($('#m_contTva :selected').text());
                     }
                     platabaza.text($('#m_plataBaza').val());
+                    platabaza.attr('valoare',$('#m_plataBaza').val());
                     platatotal.text($('#m_plataTotal').val());
+                    platatotal.attr('valoare',$('#m_plataTotal').val());
                     platatva.text($('#m_plataTva').val());
+                    platatva.attr('valoare',$('#m_plataTva').val());
                     numarOp.text(data.numarop);
 
                     //**sum columns */
-                    sumColumns();
+                    //sumColumns();
+                    sumColumnsItem('bazasistem',platabaza.attr('valoare'),0,'plus','1');
+                    sumColumnsItem('tvasistem',platatva.attr('valoare'),0,'plus','0');
+                    sumCsv();
+                    countCheckedRoes();
+                    sumChecked();
                 }
                 
             },
@@ -666,58 +724,104 @@ $(document).ready(function(){
         });
     };
 
+    function countCheckedRoes(){
+        var countchecked = $("#dataTable1 tr:visible input[type=checkbox]:checked").length;
+        $('#cck').text($.number(countchecked,0,',',' '));
+    }
+
+    function countCheckedRowsAltele(){
+        var countchecked = $("#dataTable2 tr input[type=checkbox]:checked").length;
+        $('#cck1').text($.number(countchecked,0,',',' '));
+    }
+
+    function sumChecked(){
+        var sum = 0;
+        $('tr:visible .ckline:checked').each(function(){
+            sum += Number($(this).closest('tr').find('td.sTotal').attr('valoare'));
+        });
+        $('#cckv').text($.number(sum,2,',',' '));
+    }
+
+    function sumCheckedAltele(){
+        var sum = 0;
+        $('tr .ckline1:checked').each(function(){
+            sum += Number($(this).closest('tr').find('td.pm_plata').attr('valoare'));
+        });
+        $('#cckv1').text($.number(sum,2,',',' '));
+    }
+
     function sumColumns(){
         var sSold = 0;
         var sTotal = 0;
         var sBaza = 0;
         var sTva = 0;
+        var sVer = 0;
 
         if($('#listaManual').attr('hidden')){
             $('td.sSold').each(function(){
                 if($(this).closest('tr').is(':visible')){
-                    sSold = sSold + Number($(this).text());
+                    sSold = sSold + Number($(this).attr('valoare'));
                 }
             });
 
             $('td.sTotal').each(function(){
                 if($(this).closest('tr').is(':visible')){
-                    sTotal = sTotal + Number($(this).text());
+                    sTotal = sTotal + Number($(this).attr('valoare'));
                 }
             });
 
             $('td.sBaza').each(function(){
                 if($(this).closest('tr').is(':visible')){
-                    sBaza = sBaza + Number($(this).text());
+                    sBaza = sBaza + Number($(this).attr('valoare'));
                 }
             });
 
             $('td.sTva').each(function(){
                 if($(this).closest('tr').is(':visible')){
-                    sTva = sTva + Number($(this).text());
+                    sTva = sTva + Number($(this).attr('valoare'));
                 }
             });
+
+            $('td.sTotal').each(function(){
+                if($(this).closest('tr').is(':visible') && $(this).closest('tr').find('input').attr('checked')){
+                    sVer = sVer + Number($(this).attr('valoare'));
+                }
+            });
+
         }else{
             $('td.sSold').each(function(){
-                    sSold = sSold + Number($(this).text());
+                    sSold = sSold + Number($(this).attr('valoare'));
             });
 
             $('td.sTotal').each(function(){
-                    sTotal = sTotal + Number($(this).text());
+                    sTotal = sTotal + Number($(this).attr('valoare'));
             });
 
             $('td.sBaza').each(function(){
-                    sBaza = sBaza + Number($(this).text());
+                    sBaza = sBaza + Number($(this).attr('valoare'));
             });
 
             $('td.sTva').each(function(){
-                    sTva = sTva + Number($(this).text());
+                    sTva = sTva + Number($(this).attr('valoare'));
             });
+
+            if($(this).closest('tr').find('input').attr('checked')){
+                sVer = sVer + Number($(this).attr('valoare'));
+            }
+
+
         }
+
+        $('#stSold').attr('valoare',sSold);
+        $('#stPlataTotal').attr('valoare',sTotal);
+        $('#stPlataBaza').attr('valoare',sBaza);
+        $('#stPlataTva').attr('valoare',sTva);
 
         $('#stSold').val($.number(sSold,2,',',' '));
         $('#stPlataTotal').val($.number(sTotal,2,',',' '));
         $('#stPlataBaza').val($.number(sBaza,2,',',' '));
         $('#stPlataTva').val($.number(sTva,2,',',' '));
+       
 
         var tsis =  $('#stPlataTotal').val() == '' ? '0' : $('#stPlataTotal').val();
         if(tsis){tsis = tsis.replace(/\s/g,'')};
@@ -744,10 +848,101 @@ $(document).ready(function(){
         }
 
         if(tbm && bbm){
+            $('#grand_total').attr('valoare',tbm);
+            $('#grand_total_baza').attr('valoare',bbm);
+            $('#grand_total_tva').attr('valoare',tvabm);
+
             $('#grand_total').val($.number(tbm,2,',',' '));
             $('#grand_total_baza').val($.number(bbm,2,',',' '));
             $('#grand_total_tva').val($.number(tvabm,2,',',' '));
         }
+    };
+
+    function sumColumnsItem(type,value,valueOld,sign,csv1){
+        /***types: */
+        //**bazasistem,tvasistem,bazamanual,tvamanual*/
+        //**csv: */
+        //**0 = da, 1 = nu */
+        //**sign: */
+        //**plus/min */
+
+        /*
+        bazasistem;
+        tvasistem;
+        bazamanual;
+        tvamanual;
+        csvsistem;
+        csvmanual;
+        */
+
+       value = sign == 'min' ? -Number(value) : Number(value);
+       valueOld = sign == 'min' ? -Number(valueOld) : Number(valueOld);
+
+       var csv = $('#csv');
+       var totalsistem = $('#stPlataTotal');
+       var totalmanual = $('#pm_plata_total');
+       var gtotal = $('#grand_total');
+
+       var bazasistem = $('#stPlataBaza');
+       var bazamanual = $('#pm_plata_baza');
+       var gbaza = $('#grand_total_baza');
+
+       var tvasistem = $('#stPlataTva');
+       var tvamanual = $('#pm_plata_tva');
+       var gtva = $('#grand_total_tva');
+
+       //console.log(tvasistem.attr('valoare') + '-' + value + '-' + valueOld);
+       
+
+       switch(type){
+           case 'bazasistem':
+               bazasistem.attr('valoare',Number(bazasistem.attr('valoare'))-valueOld+value);
+           break;
+
+           case 'tvasistem':
+               tvasistem.attr('valoare',Number(tvasistem.attr('valoare'))-valueOld+value);
+           break;
+
+           case 'bazamanual':
+               bazamanual.attr('valoare',Number(bazamanual.attr('valoare'))-valueOld+value);
+           break;
+
+           case 'tvamanual':
+               tvamanual.attr('valoare',Number(tvamanual.attr('valoare'))-valueOld+value);
+           break;
+
+           default:
+       };
+
+       switch(csv1){
+           case '0':
+
+           break;
+
+           case '1':
+               var csvval = Number(csv.attr('valoare')) + value;
+               csv.text($.number(csvval,2,',',' '));
+           break;
+
+           default:
+       };
+
+       gbaza.attr('valoare',Number(bazasistem.attr('valoare'))+Number(bazamanual.attr('valoare')));
+       gtva.attr('valoare',Number(tvasistem.attr('valoare'))+Number(tvamanual.attr('valoare')));
+       totalsistem.attr('valoare',Number(bazasistem.attr('valoare'))+Number(tvasistem.attr('valoare')));
+       totalmanual.attr('valoare',Number(bazamanual.attr('valoare'))+Number(tvamanual.attr('valoare')));
+       gtotal.attr('valoare',Number(totalsistem.attr('valoare'))+Number(totalmanual.attr('valoare')));
+
+       totalsistem.val($.number(totalsistem.attr('valoare'),2,',',' '));
+       totalmanual.val($.number(totalmanual.attr('valoare'),2,',',' '));
+       gtotal.val($.number(gtotal.attr('valoare'),2,',',' '));
+       bazasistem.val($.number(bazasistem.attr('valoare'),2,',',' '));
+       bazamanual.val($.number(bazamanual.attr('valoare'),2,',',' '));
+       gbaza.val($.number(gbaza.attr('valoare'),2,',',' '));
+       tvasistem.val($.number(tvasistem.attr('valoare'),2,',',' '));
+       tvamanual.val($.number(tvamanual.attr('valoare'),2,',',' '));
+       gtva.val($.number(gtva.attr('valoare'),2,',',' '));
+
 
     };
 
@@ -757,15 +952,21 @@ $(document).ready(function(){
         if(!$('#listaManual').attr('hidden')){
             $('td.pm_plata').each(function(){
                 if($(this).closest('tr').is(':visible')){
-                    s2Plata = s2Plata + Number($(this).text());
+                    s2Plata = s2Plata + Number($(this).attr('valoare'));
                 }
             });
+            $('#pm_plata_total').attr('valoare',s2Plata);
             $('#pm_plata_total').val($.number(s2Plata,2,',',' '));
+            $('#pm_plata_baza').attr('valoare',s2Plata);
+            $('#pm_plata_baza').val($.number(s2Plata,2,',',' '));
         }else{
             $('td.pm_plata').each(function(){
-                    s2Plata = s2Plata + Number($(this).text());
+                    s2Plata = s2Plata + Number($(this).attr('valoare'));
             });
+            $('#pm_plata_total').attr('valoare',s2Plata);
             $('#pm_plata_total').val($.number(s2Plata,2,',',' '));
+            $('#pm_plata_baza').attr('valoare',s2Plata);
+            $('#pm_plata_baza').val($.number(s2Plata,2,',',' '));
         }
         var tsis =  $('#stPlataTotal').val() == '' ? '0' : $('#stPlataTotal').val();
         if(tsis){tsis = tsis.replace(/\s/g,'')};
@@ -790,8 +991,12 @@ $(document).ready(function(){
         if(tvasis && tvaman){
             var tvabm = Number(tvasis.replace(/\,/g, '.')) + Number(tvaman.replace(/\,/g, '.'));
         }
-
+        
         if(tbm && bbm){
+            $('#grand_total').attr('valoare',tbm);
+            $('#grand_total_baza').attr('valoare',bbm);
+            $('#grand_total_tva').attr('valoare',tvabm);
+
             $('#grand_total').val($.number(tbm,2,',',' '));
             $('#grand_total_baza').val($.number(bbm,2,',',' '));
             $('#grand_total_tva').val($.number(tvabm,2,',',' '));
@@ -841,17 +1046,46 @@ $(document).ready(function(){
             return type == 'aproba' ? ckAproba : ckInitiaza;
     }
 
+    function sumCsv(){
+        var sSis = 0;
+        var sMan = 0;
+        var sTotal = 0;
+
+        $('#dataTable2 tr td.cont').each(function(){
+            if($(this).text() != ''){
+                sMan = sMan + Number($(this).closest('tr').find('td.pm_plata').text());
+                //console.log('nnn');
+            }
+        });
+
+        $('#dataTable1 tr td.sBaza').each(function(){
+            sSis = sSis + Number($(this).text());
+        });
+
+        sTotal = sMan + sSis;
+
+        $('#csv').text($.number(sTotal,2,',',' '));
+        $('#csv').attr('valoare',sTotal);
+    }
+
     function dataTableMethods2(){
         var baseUrl = $('#baseUrl').val();
 
         $('#dataTable2').on('click','tbody tr td #btnDeleteRow2',function(){
             var id = $(this).closest('tr').find('td:eq(0)').text();
+            var plataBaza = $(this).closest('tr').find('td.pm_plata').attr('valoare');
+            var contBancar = $(this).closest('tr').find('td.cont');
             $(this).closest('tr').remove();
             $.ajax({
                 type:'get',
                 url:baseUrl + '/financiar/detaliippmanual/delete/' + id,
                 success:function(){
-                    sumColumnsAltele();
+                    //sumColumnsAltele();
+                    if(contBancar.text() == ''){
+                        sumColumnsItem('bazamanual',plataBaza,0,'min','0');
+                    }else{
+                        sumColumnsItem('bazamanual',plataBaza,0,'min','1');
+                    }
                 },
                 error:function(){
                     alert('Eroare - [stergere plata suplimentara]! Contactati administratorul de sistem.');
@@ -870,7 +1104,40 @@ $(document).ready(function(){
             $('#pm_op, #pm_partener, #pm_explicatii, #pm_valoare').removeClass('is-invalid is-valid');
     
             $(this).prop('hidden',true);
+            $('#pm_addNew_f').prop('hidden',true);
     
+        });
+
+        $('#dataTable2').on('click','tbody tr td .ckline1',function(event){
+            //**get path */
+            var baseUrl = $('#baseUrl').val();
+
+            //**get ck status */
+            var ck = 'nedefinit';
+            ck = $(this).prop('checked') ? 'da' : 'nu';
+            var idRow = $(this).closest('tr').find('td:eq(0)').attr('rowId');
+
+
+            if(idRow){
+                //**insert data into database */ 
+                $.ajax({
+                    type:'post',
+                    url:baseUrl + '/financiar/detaliuProgramarePlati/updateCheckedAltele/' + idRow,
+                    data:{
+                        'status':ck
+                    },
+                    success:function(data){
+                        countCheckedRowsAltele();
+                        sumCheckedAltele();
+                        sumCsv();
+                    },
+                    error:function(){
+                        alert('Eroare - [salvare check altele]! Contactati administratorul de sistem.');
+                    }
+                });
+
+            } 
+           
         });
     };
 
@@ -892,6 +1159,11 @@ $(document).ready(function(){
     
     sumColumnsAltele();
     sumColumns();
+    sumCsv();
+    countCheckedRoes();
+    countCheckedRowsAltele();
+    sumChecked();
+    sumCheckedAltele();
 
 
     //**event: change cont bancar */
@@ -919,6 +1191,15 @@ $(document).ready(function(){
     //**search on input */
     $("#goSubtotal").on("click", function() {
         sumColumns();
+        sumCsv();
+        countCheckedRoes();
+        sumChecked();
+    });
+    $("#pm_gosubtotal").on("click", function() {
+        sumColumns();
+        sumCsv();
+        countCheckedRoes();
+        sumChecked();
     });
 
     $("#inputSearch").on("keyup", function() {
@@ -941,15 +1222,20 @@ $(document).ready(function(){
     $("#addExtrasCont").on("click",function(){
         $('#createExtrasModal').modal('show');
     });
+
     
     //**plati suplimentare */
 
-    $('#pm_renunta').on('click',function(){
+    $('#pm_renunta, #pm_renunta1').on('click',function(){
         $('#pm_form').prop('hidden',true);
         $('#pm_total').prop('hidden',false);
         $('#pm_op').focus();
         $('#pm_addNew').prop('hidden',false);
+        $('#pm_addNew_f').prop('hidden',false);
+
+        $('#pm_form1').prop('hidden',true);
     });
+
 
     $('#pm_op').on('keypress keyup blur',function (event) {
        $(this).val($(this).val().replace(/[^\d].+/, ''));
@@ -1022,9 +1308,10 @@ $(document).ready(function(){
                             '<tr><td hidden value="' + data.detaliualtele.id +'">' + data.detaliualtele.id +'</td>'
                             + '<td width:50px style="max-width: 100px">' + data.detaliualtele.numarOp +'</td>'
                             + '<td style="max-width: 150px">' + data.detaliualtele.partener +'</td>'
+                            + '<td width:50px style="max-width: 100px">' + data.cont +'</td>'
                             + '<td style="max-width: 300px">' + data.detaliualtele.descriere +'</td>'
-                            + '<td style="max-width: 25px" class="pm_plata">' + data.detaliualtele.valoare +'</td>'
-                            + '<td hidden>' + data.detaliualtele.verificare +'</td>'
+                            + '<td style="max-width: 25px" class="pm_plata" valoare ="' + data.detaliualtele.valoare + '">' + data.detaliualtele.valoare +'</td>'
+                            + '<td style="text-align: center" class="ck1"><div class="checkbox-inline justify-content-center align-items-center"><input type="checkbox" name="check" value="0"></div></td>'
                             + '<td  style="min-width: 30px"><a href="#" style="color:red; text-decoration:none"><i class="fa fa-trash-o" title="Sterge linie" data-toogle="tooltip" id="btnDeleteRow2"></i></a></td></tr>'
                         );
                     }else{
@@ -1032,9 +1319,10 @@ $(document).ready(function(){
                             '<tr><td hidden value="' + data.detaliualtele.id +'">' + data.detaliualtele.id +'</td>'
                             + '<td width:50px style="max-width: 100px">' + data.detaliualtele.numarOp +'</td>'
                             + '<td style="max-width: 150px">' + data.detaliualtele.partener +'</td>'
+                            + '<td width:50px style="max-width: 100px">' + data.cont +'</td>'
                             + '<td style="max-width: 300px">' + data.detaliualtele.descriere +'</td>'
-                            + '<td style="max-width: 25px" class="pm_plata">' + data.detaliualtele.valoare +'</td>'
-                            + '<td hidden>' + data.detaliualtele.verificare +'</td>'
+                            + '<td style="max-width: 25px" class="pm_plata  valoare ="' + data.detaliualtele.valoare + '">' + data.detaliualtele.valoare +'</td>'
+                            + '<td style="text-align: center" class="ck1"><div class="checkbox-inline justify-content-center align-items-center"><input type="checkbox" name="check" value="0"></div></td>'
                             + '<td  style="min-width: 30px"><a href="#" style="color:red; text-decoration:none"><i class="fa fa-trash-o" title="Sterge linie" data-toogle="tooltip" id="btnDeleteRow2"></i></a></td></tr>'
                         );
                     }
@@ -1046,7 +1334,9 @@ $(document).ready(function(){
                     $('#pm_valoare').val('');
 
                     //**subtotals */
-                   sumColumnsAltele();
+                   //sumColumnsAltele();
+                   sumColumnsItem('bazamanual',data.detaliualtele.valoare,0,'plus','0');
+                   sumCsv();
                 },
                 error:function(){
                     alert('Eroare - [salvare plata suplimentara]! Contactati administratorul de sistem.');
@@ -1101,7 +1391,6 @@ $(document).ready(function(){
 
          //**Show/Hide liste sistem si manuale*/
         $('#btnArataSistemManual').click(function(){
-           // alert ('merge');
             if($('#listaManual').attr('hidden')){
                 $('#listaManual').prop('hidden',false);
                 $('#d_inputSearch2').prop('hidden',false);
