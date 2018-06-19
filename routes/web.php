@@ -166,6 +166,16 @@ Route::get('user/delete/{id}',[
         'as'=>'programareplati.getBazaTvaData'
     ])->middleware('auth');
 
+    Route::post('financiar/detaliuProgramarePlati/updateChecked/{idRow}',[
+        'uses'=>'ProgramarePlatiController@updateChecked',
+        'as'=>'detaliilista.updateChecked'
+    ])->middleware('auth');
+
+    Route::post('financiar/detaliuProgramarePlati/updateCheckedAltele/{idRow}',[
+        'uses'=>'ProgramarePlatiController@updateCheckedAltele',
+        'as'=>'detaliilista.updateCheckedAltele'
+    ])->middleware('auth');
+
     //**approval flow */
     Route::get('financiar/programareplati/trimiteSpreAprobare/{id}',[
         'uses'=>'ProgramarePlatiController@trimiteSpreAprobare',
@@ -202,6 +212,21 @@ Route::get('user/delete/{id}',[
     Route::get('financiar/detaliippmanual/delete/{id}',[
         'uses'=>'DetaliuProgramarePlataController@delete',
         'as'=>'detaliuppm.delete'
+    ])->middleware('auth');
+
+    Route::get('financiar/programareplatimanual/getParteneri',[
+        'uses'=>'DetaliuProgramarePlataController@getParteneri',
+        'as'=>'detaliuppm.getParteneri'
+    ])->middleware('auth');
+
+    Route::get('/financiar/programareplatimanual/getConturiBancare/{id}',[
+        'uses'=>'DetaliuProgramarePlataController@getConturiBancare',
+        'as'=>'detaliuppm.getConturiBancare'
+    ])->middleware('auth');
+
+    Route::post('financiar/detaliippmanual/createf',[
+        'uses'=>'DetaliuProgramarePlataController@createf',
+        'as'=>'detaliuppm.createf'
     ])->middleware('auth');
 
     //**export */

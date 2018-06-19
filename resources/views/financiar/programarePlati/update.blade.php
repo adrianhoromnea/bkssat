@@ -33,7 +33,6 @@
             <a href="{{route('programareplati.reanaliza',$id = $programare->id)}}"><input type="button" class="btn btn-warning" value="Reanaliza" title="Trimite spre reanaliza" data-toogle="tooltip" id="btnReanaliza"></a>
             @endif
         </div>
-        @if(auth()->user()->hasAnyRole(['Financiar']) AND $programare->status == 2)
         <div class="col">
             <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -42,12 +41,11 @@
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <h6 class="dropdown-header"><strong>ING</strong></h6>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{route('programareplata.export',[$id => $programare->id,0])}}">CSV</a>
-                        <a class="dropdown-item" href="{{route('programareplata.export',[$id => $programare->id,1])}}">Excel</a>
+                        <a class="dropdown-item" href="{{route('programareplata.export',[$programare->id,0])}}">CSV</a>
+                        <a class="dropdown-item" href="{{route('programareplata.export',[$programare->id,1])}}">Excel</a>
                     </div>
             </div>  
         </div>
-        @endif
 
         <div class="col">
             <input type="button" class="btn btn-outline-secondary float-right mr-2 " value="Sistem/Manual" title="Arata alternativ lsite sistem / manual" data-toogle="tooltip" id="btnArataSistemManual">

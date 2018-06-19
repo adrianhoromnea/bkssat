@@ -14,5 +14,7 @@
    
    $( ".datePickerRestrMonth" ).datepicker({dateFormat: 'yy-mm-dd',stepMonths:0});
 
+   
+
 
 

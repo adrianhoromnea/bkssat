@@ -17,7 +17,7 @@ class DetaliuProgramarePlataManual extends Model
 
     //add fields that can be changed
     protected $fillable = [
-        'programare_platas_id','partener','descriere','idMoneda','valoare','verificare','created_by','updated_by','numarOp'
+        'programare_platas_id','partener','descriere','idMoneda','valoare','verificare','created_by','updated_by','numarOp','idPartener','idContBaza',
     ];
 
     //relationships
@@ -27,6 +27,10 @@ class DetaliuProgramarePlataManual extends Model
 
     public function moneda(){
         return $this->belongsTo('App\NomMoneda','idMoneda','idNomMoneda');
+    }
+
+    public function partener(){
+        return $this->belongsTo('App\NomPartener','idPartener','idNomPartener');
     }
 
 

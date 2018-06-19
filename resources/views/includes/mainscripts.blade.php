@@ -51,8 +51,12 @@
 
 <!-- Custom scripts for certain cases -->
 @if(isset($jsProgramarePlati))
-    <script src="{{asset('js/programarePlati.js')}}"></script>
+    <script src="{{asset('js/ProgramarePlati/programarePlati.js')}}"></script>
 @endif
+
+@yield('pagesspecificscripts')
+    
+
 
 
 
